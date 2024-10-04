@@ -5,14 +5,16 @@ from dotenv import load_dotenv
 import requests
 import json
 from datetime import datetime
-from weather_service import get_weather_data
+from app.services.weather_service import get_weather_data
 
 
 client = OpenAI()
 
+data = datetime.now()
+
 
 # Função para buscar dados da API externa (previsão do tempo)
-async def get_weather_data(location: str, date_formatted: str):
+async def get_weather(location: str, date_formatted: str):
     return await get_weather_data(location, date_formatted)
 
 # Função principal do Assistant com suporte a threads
@@ -71,7 +73,7 @@ async def create_message(thread_id: str, role: str, content: str):
         message = client.beta.threads.messages.create(
             thread_id=thread_id,
             role=role,
-            content=content
+            content=content+f" a data de hoje é ${data}"
         )
 
         return message
@@ -104,7 +106,7 @@ async def run_message(thread_id: str, assistant_id: str):
             for tool in run.required_action.submit_tool_outputs.tool_calls:
                 if tool.function.name == "get_weather_data":
                     print("TOOL:", json.loads(tool.function.arguments))
-                    data = await get_weather_data(json.loads(tool.function.arguments)["location"], json.loads(tool.function.arguments)["date_formatted"])
+                    data = await get_weather(json.loads(tool.function.arguments)["location"], json.loads(tool.function.arguments)["date_formatted"])
                     tool_outputs.append({
                     "tool_call_id": tool.id,
                     "output": data

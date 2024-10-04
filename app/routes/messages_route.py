@@ -6,8 +6,8 @@ import os
 
 router = APIRouter()
 
-@router.post("/")
-async def recieve_message(request: Request):
+@router.post("/receivemessage")
+async def receive_message(request: Request):
     payload = await request.json()
     if payload["phone"] is not None and (payload["phone"] == "558581811515" or payload["phone"] == "554137950674"):
         print(payload["phone"])

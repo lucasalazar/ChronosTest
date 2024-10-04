@@ -1,10 +1,11 @@
 import sqlite3
+import json
 
 
 def get_connection():
     return sqlite3.connect('database.db')
 
-async def create_db():
+def create_db():
     con = get_connection()
     cursor = con.cursor()
     cursor.execute('''
@@ -39,4 +40,13 @@ async def get_user(phone):
     user = cursor.fetchone()
     con.close()
     
-    return user
+    if user:
+        user_dict = {
+            "id": user[0],
+            "phone": user[1],
+            "assistant_id": user[2],
+            "thread_id": user[3],
+        }
+        return user_dict
+    
+    return None

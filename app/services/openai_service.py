@@ -1,8 +1,5 @@
 from fastapi import HTTPException
 from openai import OpenAI
-import os
-from dotenv import load_dotenv
-import requests
 import json
 from datetime import datetime
 from app.services.weather_service import get_weather_data
@@ -74,7 +71,7 @@ async def create_message(thread_id: str, role: str, content: str):
         message = client.beta.threads.messages.create(
             thread_id=thread_id,
             role=role,
-            content=content+f" a data de hoje é ${data}"
+            content=content
         )
 
         return message
@@ -83,7 +80,7 @@ async def create_message(thread_id: str, role: str, content: str):
         raise HTTPException(status_code=500, detail=str(e))
     
 
-async def run_message(thread_id: str, assistant_id: str):
+async def run_message(thread_id: str, assistant_id: str, phone: str):
     try:
         run = client.beta.threads.runs.create_and_poll(
             thread_id=thread_id,
@@ -95,7 +92,7 @@ async def run_message(thread_id: str, assistant_id: str):
                 thread_id=thread_id
             )
             print("\nMESSAGES 1:", messages)
-            await send_message("558581811515", messages.data[0].content[0].text.value)
+            await send_message(phone, messages.data[0].content[0].text.value)
             return messages
         else:
             print("\nRUN STATUS 1:", run.status)
@@ -134,7 +131,7 @@ async def run_message(thread_id: str, assistant_id: str):
                     thread_id=thread_id
                 )
                 print("\nMESSAGES 2:", messages)
-                await send_message("558581811515", messages.data[0].content[0].text.value)
+                await send_message(phone, messages.data[0].content[0].text.value)
                 return messages
             else:
                 print("\RUN STATUS 2:", run.status)

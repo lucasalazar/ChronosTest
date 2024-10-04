@@ -12,9 +12,7 @@ async def process_message(phone : str, message: str):
             thread_id = await get_user_thread_id(phone)
             message = await create_message(thread_id, "user", message + f" a data de hoje é {data}")
             run = await run_message(thread_id, assistant_id, phone)
-            print(run.data[0].content[0].text.value)
     else:
         thread_id = await get_user_thread_id(phone)
         message = await create_message(thread_id, "user", message + f" a data de hoje é {data}")
         run = await run_message(thread_id, assistant_id, phone)
-        print(run.data[0].content[0].text.value)

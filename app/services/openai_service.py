@@ -11,11 +11,9 @@ client = OpenAI()
 data = datetime.now()
 
 
-# Função para buscar dados da API externa (previsão do tempo)
 async def get_weather(location: str, date_formatted: str):
     return await get_weather_data(location, date_formatted)
 
-# Função principal do Assistant com suporte a threads
 async def create_assistant():
     try:
         assistant = client.beta.assistants.create(
@@ -91,27 +89,20 @@ async def run_message(thread_id: str, assistant_id: str, phone: str):
             messages = client.beta.threads.messages.list(
                 thread_id=thread_id
             )
-            print("\nMESSAGES 1:", messages)
             await send_message(phone, messages.data[0].content[0].text.value)
             return messages
-        else:
-            print("\nRUN STATUS 1:", run.status)
         
-        # Define the list to store tool outputs
         tool_outputs = []
         
-        # Loop through each tool in the required action section
         if run.required_action is not None:
             for tool in run.required_action.submit_tool_outputs.tool_calls:
                 if tool.function.name == "get_weather_data":
-                    print("TOOL:", json.loads(tool.function.arguments))
                     data = await get_weather(json.loads(tool.function.arguments)["location"], json.loads(tool.function.arguments)["date_formatted"])
                     tool_outputs.append({
                     "tool_call_id": tool.id,
                     "output": data
                     })
             
-        # Submit all tool outputs at once after collecting them in a list
         if tool_outputs:
             try:
                 run = client.beta.threads.runs.submit_tool_outputs_and_poll(
@@ -119,22 +110,16 @@ async def run_message(thread_id: str, assistant_id: str, phone: str):
                 run_id=run.id,
                 tool_outputs=tool_outputs
                 )
-                print("Tool outputs submitted successfully.")
             except Exception as e:
                 print("Failed to submit tool outputs:", e)
-            else:
-                print("No tool outputs to submit.")
         
         if tool_outputs:
             if run.status == 'completed':
                 messages = client.beta.threads.messages.list(
                     thread_id=thread_id
                 )
-                print("\nMESSAGES 2:", messages)
                 await send_message(phone, messages.data[0].content[0].text.value)
                 return messages
-            else:
-                print("\RUN STATUS 2:", run.status)
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

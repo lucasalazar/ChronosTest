@@ -12,11 +12,11 @@ async def get_weather_data(location: str, date_formatted: str):
     print("Getting weather data", location, date_formatted)
     url = f"https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/{location}/{date_formatted}?unitGroup=metric&key={weather_api_key}&contentType=json"
     response = requests.get(url)
+    print(response.status_code)
 
     if response.status_code != 200:
         raise HTTPException(status_code=500, detail="Erro ao acessar API externa")
     
     temperature_info = response.json()["days"][0]
     location = response.json()["resolvedAddress"]
-    print("Weather data received", f"Informações de temperatura: {temperature_info}, temp é a temperatura média. Localização solicitada: {location}")
     return f"Informações de temperatura: {temperature_info}, temp é a temperatura média. Localização solicitada: {location}"

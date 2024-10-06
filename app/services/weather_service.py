@@ -9,7 +9,7 @@ load_dotenv()
 weather_api_key = os.getenv("WEATHER_API_KEY")
 
 async def get_weather_data(location: str, date_formatted: str):
-    print("Getting weather data")
+    print("Getting weather data", location, date_formatted)
     url = f"https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/{location}/{date_formatted}?unitGroup=metric&key={weather_api_key}&contentType=json"
     response = requests.get(url)
 

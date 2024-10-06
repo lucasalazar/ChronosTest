@@ -107,7 +107,6 @@ async def run_message(thread_id: str, assistant_id: str, phone: str):
                     "output": data
                     })
                     
-        print("Tool outputs", tool_outputs)
             
         if tool_outputs:
             try:

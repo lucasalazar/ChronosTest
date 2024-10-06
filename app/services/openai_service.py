@@ -99,12 +99,15 @@ async def run_message(thread_id: str, assistant_id: str, phone: str):
         if run.required_action is not None:
             print("Run required action", phone)
             for tool in run.required_action.submit_tool_outputs.tool_calls:
+                print("Function name",tool.function.name)
                 if tool.function.name == "get_weather_data":
                     data = await get_weather(json.loads(tool.function.arguments)["location"], json.loads(tool.function.arguments)["date_formatted"])
                     tool_outputs.append({
                     "tool_call_id": tool.id,
                     "output": data
                     })
+                    
+        print("Tool outputs", tool_outputs)
             
         if tool_outputs:
             try:

@@ -80,12 +80,14 @@ async def create_message(thread_id: str, role: str, content: str):
 
 async def run_message(thread_id: str, assistant_id: str, phone: str):
     try:
+        print("Running message", phone)
         run = client.beta.threads.runs.create_and_poll(
             thread_id=thread_id,
             assistant_id=assistant_id
         )
         
         if run.status == 'completed':
+            print("Run completed", phone)
             messages = client.beta.threads.messages.list(
                 thread_id=thread_id
             )
@@ -95,6 +97,7 @@ async def run_message(thread_id: str, assistant_id: str, phone: str):
         tool_outputs = []
         
         if run.required_action is not None:
+            print("Run required action", phone)
             for tool in run.required_action.submit_tool_outputs.tool_calls:
                 if tool.function.name == "get_weather_data":
                     data = await get_weather(json.loads(tool.function.arguments)["location"], json.loads(tool.function.arguments)["date_formatted"])
@@ -105,6 +108,7 @@ async def run_message(thread_id: str, assistant_id: str, phone: str):
             
         if tool_outputs:
             try:
+                print("Submitting tool outputs", phone)
                 run = client.beta.threads.runs.submit_tool_outputs_and_poll(
                 thread_id=thread_id,
                 run_id=run.id,
@@ -115,10 +119,12 @@ async def run_message(thread_id: str, assistant_id: str, phone: str):
         
         if tool_outputs:
             if run.status == 'completed':
+                print("Run completed", phone)
                 messages = client.beta.threads.messages.list(
                     thread_id=thread_id
                 )
                 await send_message(phone, messages.data[0].content[0].text.value)
+                print(messages.data[0].content[0].text.value)
                 return messages
 
     except Exception as e:
